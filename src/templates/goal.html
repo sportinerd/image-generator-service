@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goal Image</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: 1200px;
+            height: 630px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-image: url('https://i.ibb.co.com/QGhtZSL/goal-background-design.png');
+            background-size: 100% 100%;
+            background-position: center;
+            border-radius: 8px;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 0;
+            left: 32px;
+            display: flex;
+            width: 104px;
+            height: 104px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .winning-team-logo {
+            margin-bottom: 48px;
+            display: flex;
+            width: 200px;
+            height: 200px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .winning-team-logo img {
+            width: 112px;
+            height: 112px;
+            object-fit: contain;
+        }
+
+        .goal-text-container {
+            position: relative;
+            margin-bottom: 64px;
+            text-align: center;
+        }
+
+        .goal-text-outline {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            z-index: 1000;
+            font-size: 120px;
+            line-height: 1;
+            letter-spacing: 0.2em;
+            color: transparent;
+            -webkit-text-stroke: 3px rgba(255, 255, 255, 1);
+            font-family: 'Anton', sans-serif;
+            transform: translateX(-50%) translateY(-8px);
+            font-weight: 400;
+        }
+
+        .goal-text-solid {
+            position: relative;
+            z-index: 0;
+            font-size: 120px;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            color: #01BF63;
+            font-family: 'Anton', sans-serif;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.1);
+            filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.5));
+        }
+
+        .bottom-logos {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .team-logo {
+            display: flex;
+            width: 96px;
+            height: 96px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .team-logo img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+        }
+
+        .league-logo {
+            display: flex;
+            width: 80px;
+            height: 80px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .league-logo img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Top left logo -->
+        <div class="logo-container">
+            <img src="https://sportinerd.com/_next/static/media/logo_text_prod.7589e8ed.png" alt="Logo">
+        </div>
+
+        <!-- Main winning team logo -->
+        <div class="winning-team-logo">
+            <img id="winningTeamLogo" src="" alt="Winning Team">
+        </div>
+
+        <!-- GOAL text with layered effect -->
+        <div class="goal-text-container">
+            <h1 class="goal-text-outline">GOAL</h1>
+            <h1 class="goal-text-solid">GOAL</h1>
+        </div>
+
+        <!-- Bottom team logos -->
+        <div class="bottom-logos">
+            <div class="team-logo">
+                <img id="homeTeamLogo" src="" alt="Home Team">
+            </div>
+            <div class="league-logo">
+                <img id="leagueLogo" src="" alt="League">
+            </div>
+            <div class="team-logo">
+                <img id="awayTeamLogo" src="" alt="Away Team">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // This will be replaced with actual data by the server
+        const data = {{ DATA_PLACEHOLDER }};
+
+        // Set winning team logo
+        const winningTeamLogo = data.data.team_win === data.data.home_team.name
+            ? data.data.home_team.logo
+            : data.data.away_team.logo;
+        document.getElementById('winningTeamLogo').src = winningTeamLogo;
+
+        // Set home team logo
+        document.getElementById('homeTeamLogo').src = data.data.home_team.logo;
+
+        // Set away team logo
+        document.getElementById('awayTeamLogo').src = data.data.away_team.logo;
+
+        // Set league logo
+        document.getElementById('leagueLogo').src = data.data.club_logo;
+    </script>
+</body>
+
+</html>
