@@ -1,69 +1,63 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-export class Logger {
-    private static logsDir = path.join(process.cwd(), 'logs');
-    private static isInitialized = false;
+const logsDir = path.join(process.cwd(), 'logs');
+let isInitialized = false;
 
-    private static initialize(): void {
-        if (!this.isInitialized) {
-            // Create logs directory if it doesn't exist
-            if (!fs.existsSync(this.logsDir)) {
-                fs.mkdirSync(this.logsDir, { recursive: true });
-            }
-            this.isInitialized = true;
+function initialize(): void {
+    if (!isInitialized) {
+        if (!fs.existsSync(logsDir)) {
+            fs.mkdirSync(logsDir, { recursive: true });
         }
-    }
-
-    private static getLogFileName(type: 'combined' | 'error'): string {
-        const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-        return path.join(this.logsDir, `${type}-${date}.log`);
-    }
-
-    private static writeToFile(level: string, message: string, meta?: any): void {
-        this.initialize();
-
-        const logMessage = this.formatMessage(level, message, meta);
-        const logLine = `${logMessage}\n`;
-
-        // Write to combined log
-        fs.appendFileSync(this.getLogFileName('combined'), logLine);
-
-        // Write errors to separate error log
-        if (level === 'ERROR') {
-            fs.appendFileSync(this.getLogFileName('error'), logLine);
-        }
-    }
-
-    private static formatMessage(level: string, message: string, meta?: any): string {
-        const timestamp = new Date().toISOString();
-        const metaStr = meta ? ` ${JSON.stringify(meta)}` : '';
-        return `[${timestamp}] [${level}] ${message}${metaStr}`;
-    }
-
-    static info(message: string, meta?: any): void {
-        const formatted = this.formatMessage('INFO', message, meta);
-        console.log(formatted);
-        this.writeToFile('INFO', message, meta);
-    }
-
-    static error(message: string, meta?: any): void {
-        const formatted = this.formatMessage('ERROR', message, meta);
-        console.error(formatted);
-        this.writeToFile('ERROR', message, meta);
-    }
-
-    static warn(message: string, meta?: any): void {
-        const formatted = this.formatMessage('WARN', message, meta);
-        console.warn(formatted);
-        this.writeToFile('WARN', message, meta);
-    }
-
-    static debug(message: string, meta?: any): void {
-        if (process.env.NODE_ENV === 'development') {
-            const formatted = this.formatMessage('DEBUG', message, meta);
-            console.debug(formatted);
-            this.writeToFile('DEBUG', message, meta);
-        }
+        isInitialized = true;
     }
 }
+
+function getLogFileName(type: 'combined' | 'error'): string {
+    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    return path.join(logsDir, `${type}-${date}.log`);
+}
+
+function writeToFile(level: string, message: string, meta?: any): void {
+    initialize();
+
+    const logMessage = formatMessage(level, message, meta);
+    const logLine = `${logMessage}\n`;
+
+    fs.appendFileSync(getLogFileName('combined'), logLine);
+
+    if (level === 'ERROR') {
+        fs.appendFileSync(getLogFileName('error'), logLine);
+    }
+}
+
+function formatMessage(level: string, message: string, meta?: any): string {
+    const timestamp = new Date().toISOString();
+    const metaStr = meta ? ` ${JSON.stringify(meta)}` : '';
+    return `[${timestamp}] [${level}] ${message}${metaStr}`;
+}
+
+export const Logger = {
+    info(message: string, meta?: any): void {
+        const formatted = formatMessage('INFO', message, meta);
+        console.log(formatted);
+        writeToFile('INFO', message, meta);
+    },
+    error(message: string, meta?: any): void {
+        const formatted = formatMessage('ERROR', message, meta);
+        console.error(formatted);
+        writeToFile('ERROR', message, meta);
+    },
+    warn(message: string, meta?: any): void {
+        const formatted = formatMessage('WARN', message, meta);
+        console.warn(formatted);
+        writeToFile('WARN', message, meta);
+    },
+    debug(message: string, meta?: any): void {
+        if (process.env.NODE_ENV === 'development') {
+            const formatted = formatMessage('DEBUG', message, meta);
+            console.debug(formatted);
+            writeToFile('DEBUG', message, meta);
+        }
+    },
+};
