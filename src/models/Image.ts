@@ -8,6 +8,7 @@ export interface IImage extends Document {
         id: number;
         title: string;
         gw: string;
+        caption?: string;
     };
     createdAt: Date;
 }
@@ -31,6 +32,7 @@ const ImageSchema: Schema = new Schema({
         id: Number,
         title: String,
         gw: String,
+        caption: String,
     },
     createdAt: {
         type: Date,

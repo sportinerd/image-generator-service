@@ -43,6 +43,31 @@ export const imageController = {
             // Fetch detailed image data using the data service
             const imageData = await dataService.fetchImageData(event_id, event_type, fixture_id);
 
+            // Generate Caption
+            const generateCaption = (data: typeof imageData): string => {
+                const { title, gw, data: goalData } = data;
+                const { team_win, home_team, away_team, scorers } = goalData;
+
+                let caption = `${title || 'GOAL!'} ⚽\n\n`;
+
+                if (scorers && scorers.length > 0) {
+                    const latestScorer = scorers[scorers.length - 1];
+                    caption += `${latestScorer.name} (${latestScorer.minute}') finds the net! 🔥\n`;
+                } else {
+                    caption += `${team_win} scores! 🔥\n`;
+                }
+
+                caption += `\n${home_team.name} vs ${away_team.name}\n`;
+                caption += `GW ${gw} • ${goalData.club_name || 'Premier League'}\n\n`;
+
+                const teamHashtag = team_win.replace(/\s+/g, '');
+                caption += `#${teamHashtag} #PremierLeague #Goal #Football`;
+
+                return caption;
+            };
+
+            const caption = generateCaption(imageData);
+
             // Get dimensions from env or use defaults
             const width = parseInt(process.env.IMAGE_WIDTH || '900', 10);
             const height = parseInt(process.env.IMAGE_HEIGHT || '900', 10);
@@ -65,6 +90,7 @@ export const imageController = {
                     id: imageData.id,
                     title: imageData.title,
                     gw: imageData.gw,
+                    caption,
                 },
             });
             await imageDoc.save();
@@ -75,6 +101,7 @@ export const imageController = {
                 success: true,
                 imageUrl: url,
                 imageKey: key,
+                caption,
                 message: 'Image generated and uploaded successfully',
             } as GenerateImageResponse);
 

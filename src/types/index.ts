@@ -38,6 +38,7 @@ export interface GenerateImageResponse {
     success: boolean;
     imageUrl: string;
     imageKey: string;
+    caption?: string;
     message?: string;
 }
 
