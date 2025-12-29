@@ -62,7 +62,7 @@ REQUEST BODY FORMAT
       "logo": "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg",
       "short_name": "ARS"
     },
-    "team_win": "Manchester City",
+    "goal_scored_team": "Manchester City",
     "club_name": "Premier League",
     "club_logo": "https://brandlogos.net/wp-content/uploads/2021/10/Premier-League-logo-symbol.png",
     "goals": 1,
@@ -97,7 +97,7 @@ data.away_team  (object, required)   - Away team information
   - logo        (string, required)   - Team logo URL
   - short_name  (string, required)   - Team abbreviation (3 letters)
 
-data.team_win   (string, required)   - Name of winning team
+data.goal_scored_team   (string, required)   - Name of winning team
 data.club_name  (string, required)   - League/competition name
 data.club_logo  (string, required)   - League logo URL
 data.goals      (number, required)   - Number of goals scored
@@ -170,7 +170,7 @@ curl -X POST http://your-domain.com/api/images/generate \
         "logo": "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg",
         "short_name": "ARS"
       },
-      "team_win": "Manchester City",
+      "goal_scored_team": "Manchester City",
       "club_name": "Premier League",
       "club_logo": "https://brandlogos.net/wp-content/uploads/2021/10/Premier-League-logo-symbol.png",
       "goals": 1,
@@ -211,7 +211,7 @@ const imageData = {
       logo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg",
       short_name: "ARS"
     },
-    team_win: "Manchester City",
+    goal_scored_team: "Manchester City",
     club_name: "Premier League",
     club_logo: "https://brandlogos.net/wp-content/uploads/2021/10/Premier-League-logo-symbol.png",
     goals: 1,
@@ -271,7 +271,7 @@ image_data = {
             "logo": "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg",
             "short_name": "ARS"
         },
-        "team_win": "Manchester City",
+        "goal_scored_team": "Manchester City",
         "club_name": "Premier League",
         "club_logo": "https://brandlogos.net/wp-content/uploads/2021/10/Premier-League-logo-symbol.png",
         "goals": 1,
@@ -321,7 +321,7 @@ $imageData = [
             'logo' => 'https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg',
             'short_name' => 'ARS'
         ],
-        'team_win' => 'Manchester City',
+        'goal_scored_team' => 'Manchester City',
         'club_name' => 'Premier League',
         'club_logo' => 'https://brandlogos.net/wp-content/uploads/2021/10/Premier-League-logo-symbol.png',
         'goals' => 1,

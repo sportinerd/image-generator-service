@@ -6,17 +6,17 @@ import { ImageRequest } from '../types';
  */
 export const getGoalHtmlTemplate = (data: ImageRequest): string => {
     // Extract data with fallbacks
-    const teamWin = data.data.team_win || '';
+    const goalScoredTeam = data.data.goal_scored_team || '';
     const homeTeam = data.data.home_team;
     const awayTeam = data.data.away_team;
 
     // Determine the main winning team logo
     let mainLogoSrc = '';
-    if (teamWin && homeTeam?.name === teamWin && homeTeam.logo) {
+    if (goalScoredTeam && homeTeam?.name === goalScoredTeam && homeTeam.logo) {
         mainLogoSrc = homeTeam.logo;
-    } else if (teamWin && awayTeam?.name === teamWin && awayTeam.logo) {
+    } else if (goalScoredTeam && awayTeam?.name === goalScoredTeam && awayTeam.logo) {
         mainLogoSrc = awayTeam.logo;
-    } else if (teamWin === homeTeam?.name) {
+    } else if (goalScoredTeam === homeTeam?.name) {
         mainLogoSrc = homeTeam?.logo || '';
     } else {
         mainLogoSrc = awayTeam?.logo || '';
@@ -66,7 +66,7 @@ export const getGoalHtmlTemplate = (data: ImageRequest): string => {
 <body> <!-- Set body size explicitly for Puppeteer -->
 
     <div class="relative flex size-[900px] flex-col items-center justify-center  rounded"
-         style="background-image: url('https://i.ibb.co.com/PZbFb8Mb/goal-background-design.png'); background-size: 100% 100%;"> 
+         style="background-image: url('https://e-commerce-test.sgp1.digitaloceanspaces.com/goal/1767024590969-goal-background-design.png'); background-size: 100% 100%;"> 
     
         
         <!-- Top left back arrow / Logo -->
@@ -78,7 +78,7 @@ export const getGoalHtmlTemplate = (data: ImageRequest): string => {
         <!-- Main winning team logo -->
         <div class="mb-12 flex w-32 h-32 items-center justify-center rounded-full bg-white">
             ${mainLogoSrc ?
-            `<img src="${mainLogoSrc}" alt="${teamWin}" class="w-28 h-28 object-contain">` :
+            `<img src="${mainLogoSrc}" alt="${goalScoredTeam}" class="w-28 h-28 object-contain">` :
             `<div class="flex w-24 h-24 items-center justify-center rounded-full bg-red-600">
                     <div class="flex w-20 h-20 items-center justify-center rounded-full bg-white">
                         <div class="relative flex w-16 h-16 items-center justify-center">

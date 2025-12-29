@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { imageGenerator } from '../services/imageGenerator';
 import { storageService } from '../services/storageService';
 import { dataService } from '../services/data.service';
-import { Image } from '../models/Image';
 import { Logger } from '../utils/logger';
 import { EventImageRequest, GenerateImageResponse, DeleteImageResponse, ErrorResponse } from '../types';
 
@@ -15,7 +14,11 @@ export const imageController = {
      */
     async generateImage(req: Request, res: Response): Promise<void> {
         try {
-            const { event_id, event_type, fixture_id }: EventImageRequest = req.body;
+            let { event_id, event_type, fixture_id }: EventImageRequest = req.body;
+
+            // Ensure IDs are numbers
+            event_id = Number(event_id);
+            fixture_id = Number(fixture_id);
 
             // Validate request data
             if (!event_type) {
@@ -27,13 +30,15 @@ export const imageController = {
                 return;
             }
 
-            // Logic: Only proceed if event_type is 'GOAL'
+            // Logic: Only proceed if event_type is 'GOAL' or 'OWN_GOAL'
             // Using case-insensitive check for reliability
-            if (event_type.toUpperCase() !== 'GOAL') {
-                Logger.info('Event type is not GOAL, skipping image generation', { event_type });
-                res.status(200).json({
-                    success: true,
-                    message: 'Process skipped: only GOAL events trigger image generation',
+            if (event_type.toLowerCase() !== 'goal'
+                && event_type.toLowerCase() !== 'own_goal') {
+                Logger.info('Event type is not GOAL or OWN_GOAL, skipping image generation', { event_type });
+                res.status(400).json({
+                    success: false,
+                    error: 'Bad Request',
+                    message: 'Process skipped: only GOAL or OWN_GOAL events trigger image generation',
                 });
                 return;
             }
@@ -41,12 +46,16 @@ export const imageController = {
             Logger.info('Generating image for event', { event_id, fixture_id });
 
             // Fetch detailed image data using the data service
-            const imageData = await dataService.fetchImageData(event_id, event_type, fixture_id);
+            const imageData = await dataService.fetchImageData({
+                eventId: event_id,
+                eventType: event_type,
+                fixtureId: fixture_id
+            });
 
             // Generate Caption
             const generateCaption = (data: typeof imageData): string => {
                 const { title, gw, data: goalData } = data;
-                const { team_win, home_team, away_team, scorers } = goalData;
+                const { goal_scored_team, home_team, away_team, scorers } = goalData;
 
                 let caption = `${title || 'GOAL!'} ⚽\n\n`;
 
@@ -54,13 +63,13 @@ export const imageController = {
                     const latestScorer = scorers[scorers.length - 1];
                     caption += `${latestScorer.name} (${latestScorer.minute}') finds the net! 🔥\n`;
                 } else {
-                    caption += `${team_win} scores! 🔥\n`;
+                    caption += `${goal_scored_team} scores! 🔥\n`;
                 }
 
                 caption += `\n${home_team.name} vs ${away_team.name}\n`;
                 caption += `GW ${gw} • ${goalData.club_name || 'Premier League'}\n\n`;
 
-                const teamHashtag = team_win.replace(/\s+/g, '');
+                const teamHashtag = goal_scored_team.replace(/\s+/g, '');
                 caption += `#${teamHashtag} #PremierLeague #Goal #Football`;
 
                 return caption;
@@ -80,20 +89,6 @@ export const imageController = {
 
             // Upload to DigitalOcean Spaces
             const { url, key } = await storageService.uploadImage(imageBuffer, fileName);
-
-            // Save record to database
-            const imageDoc = new Image({
-                imageKey: key,
-                url,
-                type: imageData.type,
-                metadata: {
-                    id: imageData.id,
-                    title: imageData.title,
-                    gw: imageData.gw,
-                    caption,
-                },
-            });
-            await imageDoc.save();
 
             Logger.info('Image generated and uploaded successfully', { key, url });
 
@@ -136,9 +131,6 @@ export const imageController = {
             // Delete from DigitalOcean Spaces
             await storageService.deleteImage(imageKey);
 
-            // Delete from database
-            await Image.deleteOne({ imageKey });
-
             Logger.info('Image deleted successfully', { imageKey });
 
             res.status(200).json({
@@ -159,20 +151,9 @@ export const imageController = {
      * Fetches a list of generated images
      */
     async listImages(req: Request, res: Response): Promise<void> {
-        try {
-            const images = await Image.find().sort({ createdAt: -1 }).limit(50);
-            res.status(200).json({
-                success: true,
-                count: images.length,
-                images,
-            });
-        } catch (error: any) {
-            Logger.error('Error fetching images', { error: error.message });
-            res.status(500).json({
-                success: false,
-                error: 'Internal Server Error',
-                message: error.message || 'Failed to fetch images',
-            } as ErrorResponse);
-        }
+        res.status(501).json({
+            success: false,
+            message: 'Image listing is disabled as database storage is removed.',
+        });
     }
 };

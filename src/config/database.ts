@@ -13,7 +13,7 @@ export const connectDatabase = async (): Promise<void> => {
 
         await mongoose.connect(mongoUri, options);
 
-        Logger.info('MongoDB connected successfully', { uri: mongoUri.replace(/\/\/.*@/, '//***@') });
+        Logger.info('MongoDB connected successfully');
 
         mongoose.connection.on('error', (error) => {
             Logger.error('MongoDB connection error', { error: error.message });
@@ -41,4 +41,10 @@ export const disconnectDatabase = async (): Promise<void> => {
         Logger.error('Error closing MongoDB connection', { error });
         throw error;
     }
+};
+export const getDb = () => {
+    if (!mongoose.connection || !mongoose.connection.db) {
+        throw new Error('Database not connected');
+    }
+    return mongoose.connection.db;
 };

@@ -30,7 +30,7 @@ generate_image() {
           \"logo\": \"https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg\",
           \"short_name\": \"ARS\"
         },
-        \"team_win\": \"Manchester City\",
+        \"goal_scored_team\": \"Manchester City\",
         \"club_name\": \"Premier League\",
         \"club_logo\": \"https://brandlogos.net/wp-content/uploads/2021/10/Premier-League-logo-symbol.png\",
         \"goals\": 1,

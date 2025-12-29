@@ -82,8 +82,8 @@ async function generateImage(
         await page.setViewport({ width, height, deviceScaleFactor: 2 });
 
         await page.setContent(html, {
-            waitUntil: ['networkidle0', 'domcontentloaded'],
-            timeout: 30000
+            waitUntil: ['networkidle2', 'domcontentloaded'],
+            timeout: 60000
         });
 
         // Allow fonts/images to settle

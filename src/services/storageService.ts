@@ -4,7 +4,7 @@ import { Logger } from '../utils/logger';
 async function uploadImage(buffer: Buffer, fileName: string): Promise<{ url: string; key: string }> {
     try {
         const timestamp = Date.now();
-        const key = `images/${timestamp}-${fileName}`;
+        const key = `social-post-images/${timestamp}-${fileName}`;
 
         const url = await spacesService.uploadImage(buffer, key, 'image/png');
 

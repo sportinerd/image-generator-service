@@ -13,7 +13,7 @@ export interface Scorer {
 export interface GoalData {
     home_team: TeamData;
     away_team: TeamData;
-    team_win: string;
+    goal_scored_team: string;
     club_name: string;
     club_logo: string;
     goals: number;
