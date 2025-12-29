@@ -10,7 +10,5 @@ router.post('/generate', authMiddleware, imageController.generateImage);
 // Delete image route
 router.delete('/:imageKey(*)', authMiddleware, imageController.deleteImage);
 
-// Get all images (optional, for debugging)
-router.get('/', authMiddleware, imageController.listImages);
 
 export default router;

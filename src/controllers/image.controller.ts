@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
-import { imageGenerator } from '../services/imageGenerator';
-import { storageService } from '../services/storageService';
+import { imageProcessingService } from '../services/imageProcessing.service';
 import { dataService } from '../services/data.service';
 import { Logger } from '../utils/logger';
+import { generateCaption } from '../utils/captionHelper';
 import { EventImageRequest, GenerateImageResponse, DeleteImageResponse, ErrorResponse } from '../types';
+import { storageService } from '../services/storageService';
+import { validateGenerateImageRequest } from '../utils/validator';
 
 /**
  * Controller for handling image-related API requests
@@ -14,34 +16,18 @@ export const imageController = {
      */
     async generateImage(req: Request, res: Response): Promise<void> {
         try {
-            let { event_id, event_type, fixture_id }: EventImageRequest = req.body;
+            const validation = validateGenerateImageRequest(req.body);
 
-            // Ensure IDs are numbers
-            event_id = Number(event_id);
-            fixture_id = Number(fixture_id);
-
-            // Validate request data
-            if (!event_type) {
-                res.status(400).json({
+            if (!validation.isValid || !validation.data) {
+                res.status(validation.error!.status).json({
                     success: false,
-                    error: 'Bad Request',
-                    message: 'event_type is required',
+                    error: validation.error!.error,
+                    message: validation.error!.message,
                 } as ErrorResponse);
                 return;
             }
 
-            // Logic: Only proceed if event_type is 'GOAL' or 'OWN_GOAL'
-            // Using case-insensitive check for reliability
-            if (event_type.toLowerCase() !== 'goal'
-                && event_type.toLowerCase() !== 'own_goal') {
-                Logger.info('Event type is not GOAL or OWN_GOAL, skipping image generation', { event_type });
-                res.status(400).json({
-                    success: false,
-                    error: 'Bad Request',
-                    message: 'Process skipped: only GOAL or OWN_GOAL events trigger image generation',
-                });
-                return;
-            }
+            const { event_id, event_type, fixture_id } = validation.data;
 
             Logger.info('Generating image for event', { event_id, fixture_id });
 
@@ -53,42 +39,10 @@ export const imageController = {
             });
 
             // Generate Caption
-            const generateCaption = (data: typeof imageData): string => {
-                const { title, gw, data: goalData } = data;
-                const { goal_scored_team, home_team, away_team, scorers } = goalData;
-
-                let caption = `${title || 'GOAL!'} ⚽\n\n`;
-
-                if (scorers && scorers.length > 0) {
-                    const latestScorer = scorers[scorers.length - 1];
-                    caption += `${latestScorer.name} (${latestScorer.minute}') finds the net! 🔥\n`;
-                } else {
-                    caption += `${goal_scored_team} scores! 🔥\n`;
-                }
-
-                caption += `\n${home_team.name} vs ${away_team.name}\n`;
-                caption += `GW ${gw} • ${goalData.club_name || 'Premier League'}\n\n`;
-
-                const teamHashtag = goal_scored_team.replace(/\s+/g, '');
-                caption += `#${teamHashtag} #PremierLeague #Goal #Football`;
-
-                return caption;
-            };
-
             const caption = generateCaption(imageData);
 
-            // Get dimensions from env or use defaults
-            const width = parseInt(process.env.IMAGE_WIDTH || '900', 10);
-            const height = parseInt(process.env.IMAGE_HEIGHT || '900', 10);
-
-            // Generate image buffer using Puppeteer
-            const imageBuffer = await imageGenerator.generateImage(imageData, width, height);
-
-            // Create filename
-            const fileName = `${imageData.type}-${imageData.id || Date.now()}.png`;
-
-            // Upload to DigitalOcean Spaces
-            const { url, key } = await storageService.uploadImage(imageBuffer, fileName);
+            // Generate image and upload
+            const { url, key } = await imageProcessingService.generateAndUpload(imageData);
 
             Logger.info('Image generated and uploaded successfully', { key, url });
 
@@ -146,14 +100,4 @@ export const imageController = {
             } as ErrorResponse);
         }
     },
-
-    /**
-     * Fetches a list of generated images
-     */
-    async listImages(req: Request, res: Response): Promise<void> {
-        res.status(501).json({
-            success: false,
-            message: 'Image listing is disabled as database storage is removed.',
-        });
-    }
 };
